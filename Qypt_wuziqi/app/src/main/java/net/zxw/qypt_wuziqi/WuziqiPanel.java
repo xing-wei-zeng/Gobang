@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class WuziqiPanel extends View {
     private int mPanelWidth;
     private float mLineHeight;
     private int MAX_LINE = 10;
+    private int MAX_COUNT_IN_LINE = 5;
 
     //画笔
     private Paint mPaint = new Paint();
@@ -40,6 +42,11 @@ public class WuziqiPanel extends View {
     private List<Point> mBlackArray = new ArrayList<>();
     //当前轮到白子
     private boolean mIsWhite = true;
+
+    //判断游戏结束
+    private boolean mIsGameOver;
+    //确定谁是赢家
+    private boolean mIsWhiteWinner;
 
     public WuziqiPanel(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -116,6 +123,7 @@ public class WuziqiPanel extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+        if(mIsGameOver) return false;
         int action = event.getAction();
         if(action == MotionEvent.ACTION_UP){
 
@@ -156,8 +164,166 @@ public class WuziqiPanel extends View {
         super.onDraw(canvas);
 
         drawBoard(canvas);
-
         drawPieces(canvas);
+
+        //判断游戏是否结束
+        checkGameOver();
+    }
+
+    /**
+     * 判断游戏是否结束
+     */
+    private void checkGameOver() {
+        boolean whiteWin = checkFiveInLine(mWhiteArray);
+        boolean blackWin = checkFiveInLine(mBlackArray);
+
+        if(whiteWin || blackWin){
+            mIsGameOver = true;
+            mIsWhiteWinner = whiteWin;
+
+            String text = mIsWhiteWinner?"白棋胜利":"黑棋胜利";
+
+            Toast.makeText(getContext(),text,Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * 检查是否有五子连珠
+     * @param points
+     * @return
+     */
+    private boolean checkFiveInLine(List<Point> points) {
+        for(Point p : points){
+            int x = p.x;
+            int y = p.y;
+
+            boolean win = checkHorizontal(x , y , points);
+        }
+        return false;
+    }
+
+    /**
+     * 检查横向是否有五子连珠
+     * @param x 需要判断棋子的横坐标
+     * @param y 需要判断棋子的纵坐标
+     * @param points 整个棋子集合
+     * @return true 有五子连珠
+     */
+    private boolean checkHorizontal(int x, int y, List<Point> points) {
+        int count = 1;
+        //判断左边
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x - i, y))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+
+        //判断右边
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x + i, y))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+        return false;
+    }
+
+    /**
+     * 检查纵向是否有五子连珠
+     * @param x 需要判断棋子的横坐标
+     * @param y 需要判断棋子的纵坐标
+     * @param points 整个棋子集合
+     * @return true 有五子连珠
+     */
+    private boolean checkVertical(int x, int y, List<Point> points) {
+        int count = 1;
+        //判断上
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x, y - i))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+
+        //判断右边
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x, y + i))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+        return false;
+    }
+
+    /**
+     * 检查左斜是否有五子连珠
+     * @param x 需要判断棋子的横坐标
+     * @param y 需要判断棋子的纵坐标
+     * @param points 整个棋子集合
+     * @return true 有五子连珠
+     */
+    private boolean checkLeftDiagonal(int x, int y, List<Point> points) {
+        int count = 1;
+        //判断左下
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x - i, y + i))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+
+        //判断左上
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x + i, y - i))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+        return false;
+    }
+
+    /**
+     * 检查右斜是否有五子连珠
+     * @param x 需要判断棋子的横坐标
+     * @param y 需要判断棋子的纵坐标
+     * @param points 整个棋子集合
+     * @return true 有五子连珠
+     */
+    private boolean checkRightDiagonal(int x, int y, List<Point> points) {
+        int count = 1;
+        //判断右下
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x + i, y + i))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+
+        //判断右边
+        for(int i = 1; i < MAX_COUNT_IN_LINE ;i++){
+            if(points.contains(new Point(x - i, y - i))){
+                count++;
+            }else {
+                break;
+            }
+        }
+        if(count == MAX_COUNT_IN_LINE) return true;
+        return false;
     }
 
     /**
