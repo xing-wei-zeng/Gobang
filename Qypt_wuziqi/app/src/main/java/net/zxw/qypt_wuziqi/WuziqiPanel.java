@@ -156,6 +156,26 @@ public class WuziqiPanel extends View {
         super.onDraw(canvas);
 
         drawBoard(canvas);
+
+        drawPieces(canvas);
+    }
+
+    /**
+     * 绘制棋子
+     * @param canvas
+     */
+    private void drawPieces(Canvas canvas) {
+        for(int i = 0,n = mWhiteArray.size(); i < n ; i++){
+            Point whitePoint = mWhiteArray.get(i);
+            canvas.drawBitmap(mWhitePiece,(whitePoint.x + (1 - radioPieceOfLineHeight) / 2)*mLineHeight,
+                    (whitePoint.y + (1 - radioPieceOfLineHeight) / 2)*mLineHeight,null);
+        }
+
+        for(int i = 0,n = mBlackArray.size(); i < n ; i++){
+            Point blackPoint = mBlackArray.get(i);
+            canvas.drawBitmap(mBlackPiece,(blackPoint.x + (1 - radioPieceOfLineHeight) / 2)*mLineHeight,
+                    (blackPoint.y + (1 - radioPieceOfLineHeight) / 2)*mLineHeight,null);
+        }
     }
 
     /**
