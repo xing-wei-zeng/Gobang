@@ -5,9 +5,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author zxw
@@ -29,6 +34,12 @@ public class WuziqiPanel extends View {
 
     //棋子大小比例
     private float radioPieceOfLineHeight = 3 * 1.0f / 4;
+
+    //用户点击的坐标
+    private List<Point> mWhiteArray = new ArrayList<>();
+    private List<Point> mBlackArray = new ArrayList<>();
+    //当前轮到白子
+    private boolean mIsWhite = true;
 
     public WuziqiPanel(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -95,6 +106,44 @@ public class WuziqiPanel extends View {
 
         mWhitePiece = Bitmap.createScaledBitmap(mWhitePiece,pieceWidth,pieceWidth,false);
         mBlackPiece = Bitmap.createScaledBitmap(mBlackPiece,pieceWidth,pieceWidth,false);
+    }
+
+    /**
+     * 手势
+     * @param event The motion event.
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        int action = event.getAction();
+        if(action == MotionEvent.ACTION_UP){
+
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+
+            Point p = getValidPoint(x , y);
+
+            //判断当前点是否下过
+            if(mWhiteArray.contains(p) || mBlackArray.contains(p)){
+                return false;
+            }
+
+            if(mIsWhite){
+                mWhiteArray.add(p);
+            }else{
+                mBlackArray.add(p);
+            }
+            //重绘
+            invalidate();
+            mIsWhite = !mIsWhite;
+
+        }
+        return true;
+    }
+
+    private Point getValidPoint(int x, int y) {
+        return new Point((int)(x / mLineHeight), (int)(y / mLineHeight));
     }
 
     /**
