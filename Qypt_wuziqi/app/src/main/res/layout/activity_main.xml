@@ -8,8 +8,16 @@
     tools:context="net.zxw.qypt_wuziqi.MainActivity">
 
     <net.zxw.qypt_wuziqi.WuziqiPanel
+        android:id="@+id/id_wuziqi"
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <Button
+        android:id="@+id/btn_orgin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="再来一局"
+        android:layout_below="@+id/id_wuziqi"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

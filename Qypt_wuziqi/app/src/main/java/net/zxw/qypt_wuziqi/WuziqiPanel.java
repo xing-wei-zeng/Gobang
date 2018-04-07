@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -38,8 +40,8 @@ public class WuziqiPanel extends View {
     private float radioPieceOfLineHeight = 3 * 1.0f / 4;
 
     //用户点击的坐标
-    private List<Point> mWhiteArray = new ArrayList<>();
-    private List<Point> mBlackArray = new ArrayList<>();
+    private ArrayList<Point> mWhiteArray = new ArrayList<>();
+    private ArrayList<Point> mBlackArray = new ArrayList<>();
     //当前轮到白子
     private boolean mIsWhite = true;
 
@@ -50,7 +52,7 @@ public class WuziqiPanel extends View {
 
     public WuziqiPanel(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        setBackgroundColor(0x44ff0000);
+        //setBackgroundColor(0x44ff0000);
         init();
     }
 
@@ -198,6 +200,16 @@ public class WuziqiPanel extends View {
             int y = p.y;
 
             boolean win = checkHorizontal(x , y , points);
+            if(win) return true;
+
+            win = checkVertical(x , y , points);
+            if(win) return true;
+
+            win = checkLeftDiagonal(x , y , points);
+            if(win) return true;
+
+            win = checkRightDiagonal(x , y , points);
+            if(win) return true;
         }
         return false;
     }
@@ -363,5 +375,45 @@ public class WuziqiPanel extends View {
 
             canvas.drawLine(y , startX , y ,endX ,mPaint);
         }
+    }
+
+    /**
+     * 在来一局
+     */
+    public void start(){
+        mWhiteArray.clear();
+        mBlackArray.clear();
+        mIsGameOver = false;
+        mIsWhiteWinner = false;
+    }
+
+    private static final String INSTANCE = "instance";
+    private static final String INSTANCE_GAME_OVER = "instance_game_over";
+    private static final String INSTANCE_WHITE_ARRAY = "instance_white_array";
+    private static final String INSTANCE_BLACK_ARRAY = "instance_black_array";
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        //默认系统存的
+        bundle.putParcelable(INSTANCE,super.onSaveInstanceState());
+        //自己存的
+        bundle.putBoolean(INSTANCE_GAME_OVER,mIsGameOver);
+        bundle.putParcelableArrayList(INSTANCE_WHITE_ARRAY,mWhiteArray);
+        bundle.putParcelableArrayList(INSTANCE_BLACK_ARRAY,mBlackArray);
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if(state instanceof Bundle){
+            Bundle bundle = (Bundle) state;
+            mIsGameOver = bundle.getBoolean(INSTANCE_GAME_OVER);
+            mWhiteArray = bundle.getParcelableArrayList(INSTANCE_WHITE_ARRAY);
+            mBlackArray = bundle.getParcelableArrayList(INSTANCE_BLACK_ARRAY);
+
+            super.onRestoreInstanceState(bundle.getParcelable(INSTANCE));
+            return;
+        }
+        super.onRestoreInstanceState(state);
     }
 }
